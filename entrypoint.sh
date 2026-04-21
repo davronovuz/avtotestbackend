@@ -15,7 +15,8 @@ print('DB tayyor!')
 done
 
 echo "Migratsiya fayllari yaratilmoqda..."
-python manage.py makemigrations --noinput
+python manage.py makemigrations users --noinput
+python manage.py makemigrations tests --noinput
 
 echo "Migratsiyalar bajarilmoqda..."
 python manage.py migrate --noinput
