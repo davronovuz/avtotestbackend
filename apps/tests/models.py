@@ -211,7 +211,8 @@ class UserAnswer(models.Model):
         ordering = ['answered_at']
 
     def __str__(self):
-        return f'{self.session.user.full_name} — {"to\'g\'ri" if self.is_correct else "xato"}'
+        status_text = "to'g'ri" if self.is_correct else "xato"
+        return f'{self.session.user.full_name} — {status_text}'
 
 
 class UserSectionProgress(models.Model):
