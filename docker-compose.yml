@@ -11,6 +11,7 @@ services:
       POSTGRES_DB: ${DB_NAME:-avtotestdb}
       POSTGRES_USER: ${DB_USER:-avtotestuser}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-avtotestpassword}
+    # Port tashqariga ochilmaydi — boshqa loyihalardagi postgres (5432) bilan to'qnashuv oldini olish uchun
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-avtotestuser} -d ${DB_NAME:-avtotestdb}"]
       interval: 5s
@@ -38,7 +39,7 @@ services:
     container_name: avtotest_nginx
     restart: always
     ports:
-      - "80:80"
+      - "8080:80"   # 80 va 443 boshqa loyihalarda band — biz 8080 ishlatamiz
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/staticfiles:ro
