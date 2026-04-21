@@ -14,6 +14,9 @@ print('DB tayyor!')
   sleep 2
 done
 
+echo "Migratsiya fayllari yaratilmoqda..."
+python manage.py makemigrations --noinput
+
 echo "Migratsiyalar bajarilmoqda..."
 python manage.py migrate --noinput
 
