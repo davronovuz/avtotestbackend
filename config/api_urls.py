@@ -15,19 +15,27 @@ def api_root(request):
             'swagger': f'{base}/swagger/',
             'redoc': f'{base}/redoc/',
         },
-        'endpoints': {
-            'users': {
-                'register': f'{base}/api/v1/users/register/',
-                'login': f'{base}/api/v1/users/login/',
-                'logout': f'{base}/api/v1/users/logout/',
-                'profile': f'{base}/api/v1/users/profile/',
-            },
-            'tests': {
-                'categories': f'{base}/api/v1/tests/categories/',
-                'questions': f'{base}/api/v1/tests/questions/',
-                'start': f'{base}/api/v1/tests/start/',
-                'history': f'{base}/api/v1/tests/history/',
-            },
+        'auth': {
+            'register': f'{base}/api/v1/users/register/',
+            'login': f'{base}/api/v1/users/login/',
+            'token_refresh': f'{base}/api/v1/users/token/refresh/',
+            'profile': f'{base}/api/v1/users/profile/',
+        },
+        'home_screen': {
+            'dashboard': f'{base}/api/v1/tests/home/',
+        },
+        'sections_screen': {
+            'list': f'{base}/api/v1/tests/sections/',
+            'questions': f'{base}/api/v1/tests/sections/<id>/questions/',
+        },
+        'test_flow': {
+            'start': f'{base}/api/v1/tests/start/',
+            'submit_answer': f'{base}/api/v1/tests/sessions/<id>/answer/',
+            'finish': f'{base}/api/v1/tests/sessions/<id>/finish/',
+            'history': f'{base}/api/v1/tests/history/',
+        },
+        'mistakes_screen': {
+            'list': f'{base}/api/v1/tests/mistakes/',
         },
     })
 

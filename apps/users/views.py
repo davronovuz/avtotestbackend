@@ -1,12 +1,11 @@
-from django.contrib.auth import login, logout
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
-from .models import User
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
+from .serializers import (
+    RegisterSerializer, LoginSerializer, UserSerializer, TokenSerializer,
+)
 
 
 class RegisterView(APIView):
@@ -14,14 +13,14 @@ class RegisterView(APIView):
 
     @swagger_auto_schema(
         request_body=RegisterSerializer,
-        responses={201: UserSerializer, 400: 'Xato ma\'lumotlar'},
-        operation_summary='Ro\'yxatdan o\'tish',
+        responses={201: 'JWT token + user', 400: 'Validation error'},
+        operation_summary="Ro'yxatdan o'tish (full_name + phone + password)",
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        return Response(TokenSerializer.for_user(user), status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):
@@ -29,25 +28,13 @@ class LoginView(APIView):
 
     @swagger_auto_schema(
         request_body=LoginSerializer,
-        responses={200: UserSerializer, 400: 'Xato ma\'lumotlar'},
-        operation_summary='Tizimga kirish',
+        responses={200: 'JWT token + user'},
+        operation_summary='Tizimga kirish (phone + password)',
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        return Response(UserSerializer(user).data)
-
-
-class LogoutView(APIView):
-    @swagger_auto_schema(
-        responses={200: 'Muvaffaqiyatli chiqildi'},
-        operation_summary='Tizimdan chiqish',
-    )
-    def post(self, request):
-        logout(request)
-        return Response({'detail': 'Muvaffaqiyatli chiqildi.'})
+        return Response(TokenSerializer.for_user(serializer.validated_data['user']))
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -57,14 +44,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    @swagger_auto_schema(operation_summary='Profilni ko\'rish')
+    @swagger_auto_schema(operation_summary="Profil (full_name, phone, avatar)")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
-
-    @swagger_auto_schema(operation_summary='Profilni yangilash')
-    def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)
-
-    @swagger_auto_schema(operation_summary='Profilni qisman yangilash')
-    def patch(self, request, *args, **kwargs):
-        return super().patch(request, *args, **kwargs)

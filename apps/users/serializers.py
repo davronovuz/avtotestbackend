@@ -1,42 +1,74 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User, validate_phone
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=6)
-    password2 = serializers.CharField(write_only=True)
+    """
+    Register ekrani uchun:
+    - Ism va Familiya (full_name)
+    - Telefon raqam (+998...)
+    - Parol
+    """
+    password = serializers.CharField(write_only=True, min_length=6, style={'input_type': 'password'})
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone', 'password', 'password2']
+        fields = ['full_name', 'phone', 'password']
+        extra_kwargs = {
+            'phone': {'validators': [validate_phone]},
+        }
 
-    def validate(self, data):
-        if data['password'] != data['password2']:
-            raise serializers.ValidationError({'password': 'Parollar mos kelmadi.'})
-        return data
+    def validate_phone(self, value):
+        if User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError("Bu telefon raqam allaqachon ro'yxatdan o'tgan.")
+        return value
 
     def create(self, validated_data):
-        validated_data.pop('password2')
         return User.objects.create_user(**validated_data)
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    """
+    Login ekrani uchun:
+    - Telefon raqam
+    - Parol
+    """
+    phone = serializers.CharField()
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
+        user = authenticate(phone=data['phone'], password=data['password'])
         if not user:
-            raise serializers.ValidationError('Username yoki parol noto\'g\'ri.')
+            raise serializers.ValidationError("Telefon raqam yoki parol noto'g'ri.")
         if not user.is_active:
-            raise serializers.ValidationError('Hisob faol emas.')
+            raise serializers.ValidationError("Hisob faol emas.")
         data['user'] = user
         return data
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Profil va home ekrandagi 'Salom, <ism>!' uchun."""
+    first_name = serializers.ReadOnlyField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'phone', 'avatar', 'first_name', 'last_name', 'created_at']
+        fields = ['id', 'phone', 'full_name', 'first_name', 'avatar', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+
+class TokenSerializer(serializers.Serializer):
+    """JWT token javobi uchun."""
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+    user = UserSerializer()
+
+    @classmethod
+    def for_user(cls, user):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': UserSerializer(user).data,
+        }
