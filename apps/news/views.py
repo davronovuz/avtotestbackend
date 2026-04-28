@@ -1,6 +1,5 @@
 from rest_framework import viewsets, permissions, filters
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from rest_framework.authentication import BasicAuthentication
 
 from .models import News
 from .serializers import NewsSerializer
@@ -20,6 +19,8 @@ class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
     permission_classes = [permissions.AllowAny]
+    # SessionAuthentication CSRF talab qiladi, shuning uchun o'chirildi
+    authentication_classes = []
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'description', 'author']
     ordering_fields = ['created_at', 'title']
