@@ -98,7 +98,7 @@ AUTH_USER_MODEL = 'users.User'
 # --- CORS sozlamalari ---
 # IP orqali ishlash uchun barcha originlarga ruxsat berildi
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
