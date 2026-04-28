@@ -17,6 +17,7 @@ done
 echo "Migratsiya fayllari yaratilmoqda..."
 python manage.py makemigrations users --noinput
 python manage.py makemigrations tests --noinput
+python manage.py makemigrations news --noinput
 
 echo "Migratsiyalar bajarilmoqda..."
 python manage.py migrate --noinput

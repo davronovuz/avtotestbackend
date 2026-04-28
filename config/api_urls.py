@@ -37,6 +37,10 @@ def api_root(request):
         'mistakes_screen': {
             'list': f'{base}/api/v1/tests/mistakes/',
         },
+        'news': {
+            'list':   f'{base}/api/v1/news/',
+            'detail': f'{base}/api/v1/news/<id>/',
+        },
     })
 
 
@@ -44,4 +48,5 @@ urlpatterns = [
     path('', api_root, name='api-root'),
     path('users/', include('apps.users.urls')),
     path('tests/', include('apps.tests.urls')),
+    path('news/', include('apps.news.urls')),
 ]
